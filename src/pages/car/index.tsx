@@ -7,6 +7,7 @@ import { ColumnProps } from 'antd/es/table'
 import { CarModelState } from './models/carMod'
 import styles from './style.less'
 import CarForm from './components/Form'
+import { FormType } from './car' 
 
 const namespace: string = 'carMod'
 
@@ -61,27 +62,42 @@ class Car extends Component<carProps, carState> {
         name: 'car'
     }
 
+    componentDidMount() {
+        const { dispatch } = this.props
+        dispatch({
+            type: `${namespace}/fetchCar`
+        })
+    }
+
     handleClick = () => {
         const { dispatch } = this.props
         dispatch({
             type: `${namespace}/updateStore`,
             payload: {
-                isFormShow: true
+                formType: 'add'
             }
         })
     }
 
     render() {
         const { dispatch, Car } = this.props
-        const { isFormShow } = Car
+        const { formType } = Car
 
         const carFormProps = {
-            isShow: isFormShow,
+            formType: formType,
+            handleSubmit: (values: FormType) => {
+                dispatch({
+                    type: `${namespace}/addCar`,
+                    payload: {
+                        addInfo: values
+                    }
+                })
+            },
             handleCancel: () => {
                 dispatch({
                     type: `${namespace}/updateStore`,
                     payload: {
-                        isFormShow: false
+                        formType: ''
                     }
                 })
             }

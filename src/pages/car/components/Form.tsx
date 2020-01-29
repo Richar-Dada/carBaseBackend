@@ -5,14 +5,15 @@ import { FormComponentProps } from 'antd/es/form'
 import SingleUpload from './SingleUpload'
 import MultiUpload from './MultiUpload'
 import { addressAdapter } from '../data'
+import { FormType } from '../car' 
 
 const addr = addressAdapter()
 const  { Option } = Select
 
 interface FormProps extends FormComponentProps {
-    isShow: boolean,
+    formType: string,
     handleCancel: () => void,
-    handleSubmit: () => void
+    handleSubmit: (values: FormType) => void
 }
 
 const formItemLayout = {
@@ -27,7 +28,7 @@ const formItemLayout = {
 }
 
 const CarForm: SFC<FormProps> = React.memo(({
-    isShow, 
+    formType, 
     form,
     handleCancel,
     handleSubmit
@@ -40,28 +41,19 @@ const CarForm: SFC<FormProps> = React.memo(({
                 throw err
                 return
             }
+            
+            values.regDate = values.regDate.format('YYYY-MM-DD')
+            values.licenceAddress = values.licenceAddress.join(',')
             console.log('values', values)
-            handleSubmit()
+            handleSubmit(values)
         })
-    }
-
-    const normFile = (e: any) => {
-        console.log('Upload event:', e);
-        if (Array.isArray(e)) {
-          return e;
-        }
-        return e && e.fileList;
-    }
-
-    const handleThumbnailChange = (file: any) => {
-        console.log('handleThumbnailChange', file)
     }
 
     return (
         <Modal
             width="1000px"
             title="新增车辆"
-            visible={isShow}
+            visible={!!formType}
             onOk={onOk}
             onCancel={handleCancel}
         >
@@ -86,7 +78,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                             {getFieldDecorator('regDate', {
                                 rules: [{ required: true, message: '请输入注册时间' }],
                             })(
-                                <DatePicker style={{width: '100%'}}/>
+                                <DatePicker style={{width: '100%'}} format="YYYY-MM-DD"/>
                             )}
                         </Form.Item>
                     </Col>
@@ -190,7 +182,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 rules: [{ required: true, message: '请上传缩略图' }],
                             })(
                                 <SingleUpload 
-                                actionUrl="http://localhost:7002/api/v1/upload"
+                                actionUrl="http://localhost:7001/api/v1/upload"
                                 />
                             )}
                         </Form.Item>        
@@ -202,7 +194,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 rules: [{ required: true, message: '请上传车辆图片' }],
                             })(
                                 <MultiUpload 
-                                actionUrl="http://localhost:7002/api/v1/upload"
+                                actionUrl="http://localhost:7001/api/v1/upload"
                                 />
                             )}
                         </Form.Item>    

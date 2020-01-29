@@ -75,6 +75,12 @@ export default {
   targets: {
     ie: 11,
   },
+  proxy: {
+    '/api/': {
+      target: 'http://localhost:7001/',
+      changeOrigin: true, 
+    }
+  },
   // umi routes: https://umijs.org/zh/guide/router.html
   routes: [
     {
