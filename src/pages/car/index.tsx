@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import { Dispatch, AnyAction } from 'redux'
 import { connect } from 'dva'
-import { Row, Col, Table, Divider, Button } from 'antd'
+import { Row, Col, Table, Divider, Button, Popconfirm } from 'antd'
 import { ColumnProps } from 'antd/es/table'
 
 import { CarModelState } from './models/carMod'
 import styles from './style.less'
 import CarForm from './components/Form'
-import { FormType } from './car' 
+import { FormType, CarInfoType } from './car' 
 
 const namespace: string = 'carMod'
 
@@ -20,52 +20,101 @@ interface carState {
     name: string,
 }
 
-interface CarInfo {
-    key: number,
-    carType: string
-    render?: React.ReactDOM
-}
-
-const data: CarInfo[] = [
-    {
-      key: 1,
-      carType: '本田',
-    },
-    {
-      key: 2,
-      carType: '丰田',
-    },
-];
-  
-  const columns: ColumnProps<CarInfo>[] = [
-    {
-      title: '车型',
-      dataIndex: 'carType',
-      key: 'carType',
-    },
-    {
-        title: '操作',
-        dataIndex: '',
-        key: 'x',
-        render: (text, record) => (
-            <span>
-                <a>编辑</a>
-                <Divider type="vertical" />
-                <a>删除</a>
-            </span>
-        )
-    },
-  ];
-
 class Car extends Component<carProps, carState> {
     state: carState = {
         name: 'car'
     }
 
+    columns: ColumnProps<CarInfoType>[] = [
+        {
+          title: '车型',
+          dataIndex: 'carType',
+          key: 'carType',
+        },
+        {
+            title: '注册时间',
+            dataIndex: 'regDate',
+            key: 'regDate',
+        },
+        {
+            title: '上牌地',
+            dataIndex: 'licenceAddress',
+            key: 'licenceAddress',
+        },
+        {
+            title: '变速箱',
+            dataIndex: 'gearBox',
+            key: 'gearBox',
+        },
+        {
+            title: '排放标准',
+            dataIndex: 'effluentStandard',
+            key: 'effluentStandard',
+        },
+        {
+            title: '排量',
+            dataIndex: 'outputVolume',
+            key: 'outputVolume',
+        },
+        {
+            title: '表显里程',
+            dataIndex: 'mileage',
+            key: 'mileage',
+        },
+        {
+            title: '价格',
+            dataIndex: 'price',
+            key: 'price',
+        },
+        {
+            title: '描述',
+            dataIndex: 'description',
+            key: 'description',
+        },
+        {
+            title: '操作',
+            dataIndex: '',
+            key: 'x',
+            render: (text, record) => (
+                <span>
+                    <a onClick={() => this.edit(record)}>编辑</a>
+                    <Divider type="vertical" />
+                    <Popconfirm
+                        title="确定删除？"
+                        okText="是"
+                        cancelText="否"
+                        onConfirm={() => this.del(record.id as number)}
+                    >
+                        <a >删除</a>
+                    </Popconfirm>   
+                </span>
+            )
+        },
+    ]
+
     componentDidMount() {
         const { dispatch } = this.props
         dispatch({
             type: `${namespace}/fetchCar`
+        })
+    }
+
+    edit = (record: CarInfoType) => {
+        const { dispatch } = this.props
+        dispatch({
+            type: `${namespace}/updateStore`,
+            payload: {
+                currentCar: record,
+                formType: 'edit'
+            }
+        })
+    }
+
+    del = (id: number) => {
+        const { dispatch } = this.props
+        dispatch({
+            type: `${namespace}/delById`,
+            payload: { id }
         })
     }
 
@@ -81,9 +130,10 @@ class Car extends Component<carProps, carState> {
 
     render() {
         const { dispatch, Car } = this.props
-        const { formType } = Car
+        const { formType, cars, tableOption, currentCar } = Car
 
         const carFormProps = {
+            currentCar,
             formType: formType,
             handleSubmit: (values: FormType) => {
                 dispatch({
@@ -97,7 +147,29 @@ class Car extends Component<carProps, carState> {
                 dispatch({
                     type: `${namespace}/updateStore`,
                     payload: {
-                        formType: ''
+                        formType: '',
+                        currentCar: {}
+                    }
+                })
+            }
+        }
+
+        const tableProps = {
+            rowKey: 'id',
+            columns: this.columns,
+            dataSource: cars,
+            pagination: tableOption,
+            onChange: (pagination: any) => {
+                dispatch({
+                    type: `${namespace}/fetchCar`,
+                    payload: {
+                        paginationOption: pagination
+                    }
+                })
+                dispatch({
+                    type: `${namespace}/updateStore`,
+                    payload: {
+                        paginationOption: pagination
                     }
                 })
             }
@@ -112,10 +184,10 @@ class Car extends Component<carProps, carState> {
                 </Row>
                 <Row gutter={[8, 32]}>
                     <Col>
-                        <Table dataSource={data} columns={columns} />
+                        <Table {...tableProps} />
                     </Col>
                 </Row>
-                <CarForm {...carFormProps}></CarForm>
+                {formType !== '' && <CarForm {...carFormProps}></CarForm>}
             </div>
         )
     }

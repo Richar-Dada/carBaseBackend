@@ -48,9 +48,10 @@ export async function addCar(params: CreateParamsType): Promise<any> {
 * 查询车辆记录
 */
 export async function queryCar(params: QueryParamsType): Promise<any> {
+    console.log('params', params)
     return request('/api/v1/cars', {
       method: 'GET',
-      data: params,
+      params: params,
     })
 }
 

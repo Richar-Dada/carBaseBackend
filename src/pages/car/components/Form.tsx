@@ -1,19 +1,28 @@
 import React, { SFC } from 'react'
 import { Form, Modal, Input, InputNumber, DatePicker, Cascader, Select, Row, Col, Upload, Button, Icon } from 'antd'
 import { FormComponentProps } from 'antd/es/form'
+import moment from 'moment'
 
 import SingleUpload from './SingleUpload'
 import MultiUpload from './MultiUpload'
 import { addressAdapter } from '../data'
-import { FormType } from '../car' 
+import { FormType, CarInfoType } from '../car' 
 
 const addr = addressAdapter()
 const  { Option } = Select
 
 interface FormProps extends FormComponentProps {
     formType: string,
+    currentCar: CarInfoType,
     handleCancel: () => void,
     handleSubmit: (values: FormType) => void
+}
+
+interface FileListType {
+    uid: number,
+    name: string,
+    status: string,
+    url: string,
 }
 
 const formItemLayout = {
@@ -29,11 +38,37 @@ const formItemLayout = {
 
 const CarForm: SFC<FormProps> = React.memo(({
     formType, 
+    currentCar,
     form,
     handleCancel,
     handleSubmit
 }) => {
     const { getFieldDecorator } = form
+    let initAddress: string[] = [] 
+    let thumbnailFileList: FileListType[] = []
+    let imagesFileList: FileListType[] = []
+    if (formType === 'edit') {
+        const tem: string = currentCar.licenceAddress as string
+        initAddress = tem.split(',')
+
+        thumbnailFileList = [{
+            uid: -1,
+            name: 'thumbnail',
+            status: 'done',
+            url: currentCar.thumbnail as string,
+        }]
+
+        const imagesStr: string = currentCar.images as string
+        const imagesArr: string[] = imagesStr.split(',')
+        imagesArr.forEach((url: string, index: number) => {
+            imagesFileList.push({
+                uid: index,
+                name: 'images',
+                status: 'done',
+                url: url as string,
+            })
+        })
+    }
 
     const onOk = () => {
         form.validateFields((err, values) => {
@@ -65,6 +100,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="车型">
                             {getFieldDecorator('carType', {
+                                initialValue: currentCar.carType,
                                 rules: [{ required: true, message: '请输入车型' }],
                             })(
                                 <Input
@@ -76,6 +112,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="注册时间">
                             {getFieldDecorator('regDate', {
+                                initialValue: moment(currentCar.regDate),
                                 rules: [{ required: true, message: '请输入注册时间' }],
                             })(
                                 <DatePicker style={{width: '100%'}} format="YYYY-MM-DD"/>
@@ -87,6 +124,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="上牌地">
                             {getFieldDecorator('licenceAddress', {
+                                initialValue: initAddress,
                                 rules: [{ required: true, message: '请输入上牌地' }],
                             })(
                                 <Cascader options={addr}></Cascader>
@@ -96,6 +134,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="变速箱">
                             {getFieldDecorator('gearBox', {
+                                initialValue: currentCar.gearBox,
                                 rules: [{ required: true, message: '请输入变速箱' }],
                             })(
                                 <Input
@@ -109,6 +148,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                    <Col span={12}>
                     <Form.Item label="排放标准">
                             {getFieldDecorator('effluentStandard', {
+                                initialValue: currentCar.effluentStandard,
                                 rules: [{ required: true, message: '请输入排放标准' }],
                             })(
                                 <Select style={{ width: '100%' }}>
@@ -125,6 +165,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                    <Col span={12}>
                     <Form.Item label="排量(L)">
                             {getFieldDecorator('outputVolume', {
+                                initialValue: currentCar.outputVolume,
                                 rules: [{ required: true, message: '请输入排量' }],
                             })(
                                 <InputNumber
@@ -139,6 +180,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="表显里程(KM)">
                             {getFieldDecorator('mileage', {
+                                initialValue: currentCar.mileage,
                                 rules: [{ required: true, message: '请输入表显里程' }],
                             })(
                                 <InputNumber
@@ -151,6 +193,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="价格">
                             {getFieldDecorator('price', {
+                                initialValue: currentCar.price,
                                 rules: [{ required: true, message: '请输入价格' }],
                             })(
                                 <InputNumber
@@ -165,6 +208,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                     <Col span={12}>
                         <Form.Item label="描述">
                             {getFieldDecorator('description', {
+                                initialValue: currentCar.description,
                                 rules: [{ required: false, message: '请输入描述' }],
                             })(
                                 <Input.TextArea
@@ -179,6 +223,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                         <Form.Item label="缩略图">
                             {getFieldDecorator('thumbnail', {
                                 valuePropName: 'fileList',
+                                initialValue: thumbnailFileList,
                                 rules: [{ required: true, message: '请上传缩略图' }],
                             })(
                                 <SingleUpload 

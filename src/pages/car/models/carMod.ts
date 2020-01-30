@@ -2,34 +2,27 @@ import { Effect } from 'dva';
 import { Reducer } from 'redux';
 import { message } from 'antd'
 
+import { CarInfoType } from '../car'
+
 import { 
   addCar,
-  queryCar
+  queryCar,
+  delCar
 } from '../carServ';
 
 export interface CurrentUser {
   name?: string;
 }
 
-export interface TableOptionType {
+export interface PaginationOptionType {
   pageSize: number,
-  currentPage: number
+  currentPage: number,
 }
 
-export interface CarType {
-  id: number,
-  pid: string,
-  carType: string,
-  regDate: string,
-  licenceAddress: string,
-  gearBox: string,
-  effluentStandard: string,
-  outputVolume: string,
-  mileage: string,
-  price: number,
-  describe?: string,
-  thumbnail: string,
-  images: string
+export interface TableOptionType {
+  pageSize: number,
+  current: number,
+  total: number
 }
 
 export interface CarModelState {
@@ -37,7 +30,8 @@ export interface CarModelState {
   name: string,
   formType: string,
   tableOption: TableOptionType
-  cars: CarType[]
+  cars: CarInfoType[],
+  currentCar: CarInfoType
 }
 
 export interface CarModelType {
@@ -46,7 +40,7 @@ export interface CarModelType {
   effects: {
     addCar: Effect,
     fetchCar: Effect;
-    fetchCurrent: Effect;
+    delById: Effect;
   };
   reducers: {
     updateStore: Reducer<CarModelState>;
@@ -62,40 +56,75 @@ const CarModel: CarModelType = {
     formType: '',
     tableOption: {
       pageSize: 10,
-      currentPage: 1
+      current: 1,
+      total: 0
     },
-    cars: []
+    cars: [],
+    currentCar: {}
   },
 
   effects: {
     *addCar(_, { call, put  }) {
-      const params = {..._.payload.addInfo}
+      const params = {
+        ..._.payload.addInfo, 
+        source: 'backend'
+      }
       console.log('ee', params)
       const response = yield call(addCar, params)
       if (response.code === '200') {
         message.success(`创建成功`)
+        yield put({
+          type: 'updateStore',
+          payload: {
+            formType: ''
+          }
+        })
+        yield put({ type: 'fetchCar' })
       } else {
         message.error(response.msg || '未知错误')
       }
     },
     *fetchCar(_, { select, call, put }) {
+      console.log('fetchCar')
       const { tableOption } = yield select((state: { carMod: CarModelState}) => state[CarModel.namespace])
-      const params: TableOptionType = {...tableOption}
+      let params: PaginationOptionType = {
+        currentPage: tableOption.current,
+        pageSize: tableOption.pageSize
+      }
+      if (_.payload && _.payload.paginationOption) {
+        const paginationOption = _.payload.paginationOption
+        params = {
+          currentPage: paginationOption.current,
+          pageSize: paginationOption.pageSize
+        }
+      }
       const response = yield call(queryCar, params);
       yield put({
         type: 'updateStore',
         payload: {
-          cars: response.data.list
+          cars: response.data.list,
+          tableOption: { 
+            current: response.data.currentPage,
+            pageSize: response.data.pageSize,
+            total: response.data.count
+          }
         }
       });
     },
-    *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
-      yield put({
-        type: 'saveCurrentUser',
-        payload: response,
-      });
-    },
+    *delById(_, { call, put }) {
+      const id = _.payload.id
+      if (!id) {
+        message.error('id不能为空')
+        return
+      }
+      const response = yield call(delCar, id)
+      if (response.code === '200') {
+        message.success(`删除成功`)
+        yield put({ type: 'fetchCar' })
+      } else {
+        message.error(response.msg || '未知错误')
+      }
+    }
   },
 
   reducers: {
