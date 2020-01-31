@@ -12,7 +12,7 @@ interface IState {
     imageUrl: string,
     previewImage: string
     previewVisible: boolean,
-    fileList: UploadFile[]
+    fileList: UploadFile[],
 }
 
 interface InfoProp {
@@ -42,17 +42,19 @@ function beforeUpload(file: any) {
 }
 
 class SingleUpload extends Component<IProp, IState> {
-  state = {
-    loading: false,
-    imageUrl: '',
-    previewImage: '',
-    previewVisible: false,
-    fileList: []
-  };
+  constructor(props: IProp) {
+    super(props)
+    this.state = {
+      loading: false,
+      imageUrl: '',
+      previewImage: '',
+      previewVisible: false,
+      fileList: [],
+    };
+  }
 
-  static getDerivedStateFromProps(nextProps: InfoProp) {
+  static getDerivedStateFromProps(nextProps: InfoProp, preState: IState) {
     if ('fileList' in nextProps) {
-      console.log('fileList')
       return {
         fileList: nextProps.fileList || []
       }
@@ -61,21 +63,16 @@ class SingleUpload extends Component<IProp, IState> {
   }
 
   handleChange = (info: InfoProp) => {
+    console.log('handleChange')
     const { onChange } = this.props
     this.setState({ fileList: info.fileList })
-
-    let result: string = ''
-    if (info.fileList.length > 0) {
-      result = info.fileList[0].response
-    }
-    onChange && onChange(result)
+    onChange && onChange(info.fileList)
   };
 
   handlePreview = async (file: any) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
-
     this.setState({
       previewImage: file.url || file.preview,
       previewVisible: true,

@@ -19,7 +19,7 @@ interface FormProps extends FormComponentProps {
 }
 
 interface FileListType {
-    uid: number,
+    uid: string,
     name: string,
     status: string,
     url: string,
@@ -52,18 +52,18 @@ const CarForm: SFC<FormProps> = React.memo(({
         initAddress = tem.split(',')
 
         thumbnailFileList = [{
-            uid: -1,
+            uid: '-1',
             name: 'thumbnail',
             status: 'done',
-            url: currentCar.thumbnail as string,
+            url: 'http://127.0.0.1:7001/public/upload/20200131/1580484501052.png',
         }]
 
         const imagesStr: string = currentCar.images as string
         const imagesArr: string[] = imagesStr.split(',')
         imagesArr.forEach((url: string, index: number) => {
             imagesFileList.push({
-                uid: index,
-                name: 'images',
+                uid: index.toString(),
+                name: 'images' + index,
                 status: 'done',
                 url: url as string,
             })
@@ -76,9 +76,15 @@ const CarForm: SFC<FormProps> = React.memo(({
                 throw err
                 return
             }
-            
+            console.log('values', values)
             values.regDate = values.regDate.format('YYYY-MM-DD')
             values.licenceAddress = values.licenceAddress.join(',')
+            values.thumbnail = values.thumbnail[0].response
+            const imagesArr: string[] = []
+            values.images.forEach((item: any) => {
+                imagesArr.push(item.response)
+            })
+            values.images = imagesArr.join(',')
             console.log('values', values)
             handleSubmit(values)
         })
@@ -236,6 +242,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                         <Form.Item label="车辆图片">
                             {getFieldDecorator('images', {
                                 valuePropName: 'fileList',
+                                initialValue: imagesFileList,
                                 rules: [{ required: true, message: '请上传车辆图片' }],
                             })(
                                 <MultiUpload 

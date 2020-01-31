@@ -48,19 +48,23 @@ class SingleUpload extends Component<IProp, IState> {
     previewImage: '',
     previewVisible: false,
     fileList: []
-  };
+  }
+
+  static getDerivedStateFromProps(nextProps: InfoProp, preState: IState) {
+    console.log('nextProps', nextProps)
+    if ('fileList' in nextProps) {
+      return {
+        fileList: nextProps.fileList || []
+      }
+    }
+    return null;
+  }
 
   handleChange = (info: InfoProp) => {
     const { onChange } = this.props
     this.setState({ fileList: info.fileList })
 
-    let result: string[] = []
-    if (info.fileList.length > 0) {
-      info.fileList.forEach((item) => {
-        result.push(item.response)
-      })
-    }
-    onChange && onChange(result.join(','))
+    onChange && onChange(info.fileList)
   };
 
   handlePreview = async (file: any) => {
