@@ -51,7 +51,6 @@ class SingleUpload extends Component<IProp, IState> {
   }
 
   static getDerivedStateFromProps(nextProps: InfoProp, preState: IState) {
-    console.log('nextProps', nextProps)
     if ('fileList' in nextProps) {
       return {
         fileList: nextProps.fileList || []

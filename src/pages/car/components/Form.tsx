@@ -6,10 +6,10 @@ import moment from 'moment'
 import SingleUpload from './SingleUpload'
 import MultiUpload from './MultiUpload'
 import { addressAdapter } from '../data'
-import { FormType, CarInfoType } from '../car' 
+import { FormType, CarInfoType } from '../car'
 
 const addr = addressAdapter()
-const  { Option } = Select
+const { Option } = Select
 
 interface FormProps extends FormComponentProps {
     formType: string,
@@ -27,24 +27,24 @@ interface FileListType {
 
 const formItemLayout = {
     labelCol: {
-      xs: { span: 24 },
-      sm: { span: 5 },
+        xs: { span: 24 },
+        sm: { span: 5 },
     },
     wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 12 },
+        xs: { span: 24 },
+        sm: { span: 12 },
     },
 }
 
 const CarForm: SFC<FormProps> = React.memo(({
-    formType, 
+    formType,
     currentCar,
     form,
     handleCancel,
     handleSubmit
 }) => {
     const { getFieldDecorator } = form
-    let initAddress: string[] = [] 
+    let initAddress: string[] = []
     let thumbnailFileList: FileListType[] = []
     let imagesFileList: FileListType[] = []
     if (formType === 'edit') {
@@ -55,12 +55,14 @@ const CarForm: SFC<FormProps> = React.memo(({
             uid: '-1',
             name: 'thumbnail',
             status: 'done',
-            url: 'http://127.0.0.1:7001/public/upload/20200131/1580484501052.png',
+            url: currentCar.thumbnail as string,
         }]
 
+        console.log('currentCar', currentCar)
         const imagesStr: string = currentCar.images as string
         const imagesArr: string[] = imagesStr.split(',')
         imagesArr.forEach((url: string, index: number) => {
+            console.log('url', url)
             imagesFileList.push({
                 uid: index.toString(),
                 name: 'images' + index,
@@ -76,16 +78,15 @@ const CarForm: SFC<FormProps> = React.memo(({
                 throw err
                 return
             }
-            console.log('values', values)
+
             values.regDate = values.regDate.format('YYYY-MM-DD')
             values.licenceAddress = values.licenceAddress.join(',')
-            values.thumbnail = values.thumbnail[0].response
+            values.thumbnail = values.thumbnail[0].response || values.thumbnail[0].url
             const imagesArr: string[] = []
             values.images.forEach((item: any) => {
-                imagesArr.push(item.response)
+                imagesArr.push(item.response || item.url)
             })
             values.images = imagesArr.join(',')
-            console.log('values', values)
             handleSubmit(values)
         })
     }
@@ -98,8 +99,8 @@ const CarForm: SFC<FormProps> = React.memo(({
             onOk={onOk}
             onCancel={handleCancel}
         >
-            <Form 
-                autoComplete="false" 
+            <Form
+                autoComplete="false"
                 {...formItemLayout}
             >
                 <Row>
@@ -121,7 +122,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 initialValue: moment(currentCar.regDate),
                                 rules: [{ required: true, message: '请输入注册时间' }],
                             })(
-                                <DatePicker style={{width: '100%'}} format="YYYY-MM-DD"/>
+                                <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
                             )}
                         </Form.Item>
                     </Col>
@@ -135,7 +136,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                             })(
                                 <Cascader options={addr}></Cascader>
                             )}
-                        </Form.Item>     
+                        </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label="变速箱">
@@ -147,12 +148,12 @@ const CarForm: SFC<FormProps> = React.memo(({
                                     placeholder="如：6AT"
                                 />
                             )}
-                        </Form.Item>   
+                        </Form.Item>
                     </Col>
                 </Row>
                 <Row>
-                   <Col span={12}>
-                    <Form.Item label="排放标准">
+                    <Col span={12}>
+                        <Form.Item label="排放标准">
                             {getFieldDecorator('effluentStandard', {
                                 initialValue: currentCar.effluentStandard,
                                 rules: [{ required: true, message: '请输入排放标准' }],
@@ -166,21 +167,21 @@ const CarForm: SFC<FormProps> = React.memo(({
                                     <Option value="国一">国一</Option>
                                 </Select>
                             )}
-                        </Form.Item>    
-                   </Col> 
-                   <Col span={12}>
-                    <Form.Item label="排量(L)">
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item label="排量(L)">
                             {getFieldDecorator('outputVolume', {
                                 initialValue: currentCar.outputVolume,
                                 rules: [{ required: true, message: '请输入排量' }],
                             })(
                                 <InputNumber
-                                    style={{width: '100%'}}
+                                    style={{ width: '100%' }}
                                     placeholder="如：2.5"
                                 />
                             )}
-                        </Form.Item>    
-                   </Col>
+                        </Form.Item>
+                    </Col>
                 </Row>
                 <Row>
                     <Col span={12}>
@@ -190,7 +191,7 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 rules: [{ required: true, message: '请输入表显里程' }],
                             })(
                                 <InputNumber
-                                    style={{width: '100%'}}
+                                    style={{ width: '100%' }}
                                     placeholder="如：10"
                                 />
                             )}
@@ -203,11 +204,11 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 rules: [{ required: true, message: '请输入价格' }],
                             })(
                                 <InputNumber
-                                    style={{width: '100%'}}
+                                    style={{ width: '100%' }}
                                     placeholder="如：10000"
                                 />
                             )}
-                        </Form.Item>   
+                        </Form.Item>
                     </Col>
                 </Row>
                 <Row>
@@ -232,11 +233,11 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 initialValue: thumbnailFileList,
                                 rules: [{ required: true, message: '请上传缩略图' }],
                             })(
-                                <SingleUpload 
-                                actionUrl="http://localhost:7001/api/v1/upload"
+                                <SingleUpload
+                                    actionUrl="http://localhost:7001/api/v1/upload"
                                 />
                             )}
-                        </Form.Item>        
+                        </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label="车辆图片">
@@ -245,14 +246,14 @@ const CarForm: SFC<FormProps> = React.memo(({
                                 initialValue: imagesFileList,
                                 rules: [{ required: true, message: '请上传车辆图片' }],
                             })(
-                                <MultiUpload 
-                                actionUrl="http://localhost:7001/api/v1/upload"
+                                <MultiUpload
+                                    actionUrl="http://localhost:7001/api/v1/upload"
                                 />
                             )}
-                        </Form.Item>    
+                        </Form.Item>
                     </Col>
                 </Row>
-                
+
             </Form>
         </Modal>
     )

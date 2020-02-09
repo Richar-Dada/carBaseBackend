@@ -74,7 +74,7 @@ export async function queryCarById(id: string): Promise<any> {
 }
 
 /*
-* 根据ID查询车辆记录
+* 根据ID更新车辆记录
 */
 export async function updateCar(params: UpdateParamsType): Promise<any> {
     return request('/api/v1/cars/' + params.id, {

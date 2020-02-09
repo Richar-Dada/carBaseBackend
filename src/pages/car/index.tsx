@@ -7,7 +7,7 @@ import { ColumnProps } from 'antd/es/table'
 import { CarModelState } from './models/carMod'
 import styles from './style.less'
 import CarForm from './components/Form'
-import { FormType, CarInfoType } from './car' 
+import { FormType, CarInfoType } from './car'
 
 const namespace: string = 'carMod'
 
@@ -27,9 +27,9 @@ class Car extends Component<carProps, carState> {
 
     columns: ColumnProps<CarInfoType>[] = [
         {
-          title: '车型',
-          dataIndex: 'carType',
-          key: 'carType',
+            title: '车型',
+            dataIndex: 'carType',
+            key: 'carType',
         },
         {
             title: '注册时间',
@@ -86,7 +86,7 @@ class Car extends Component<carProps, carState> {
                         onConfirm={() => this.del(record.id as number)}
                     >
                         <a >删除</a>
-                    </Popconfirm>   
+                    </Popconfirm>
                 </span>
             )
         },
@@ -136,12 +136,21 @@ class Car extends Component<carProps, carState> {
             currentCar,
             formType: formType,
             handleSubmit: (values: FormType) => {
-                dispatch({
-                    type: `${namespace}/addCar`,
-                    payload: {
-                        addInfo: values
-                    }
-                })
+                if (formType === 'add') {
+                    dispatch({
+                        type: `${namespace}/addCar`,
+                        payload: {
+                            carInfo: values
+                        }
+                    })
+                } else if (formType === 'edit') {
+                    dispatch({
+                        type: `${namespace}/editCar`,
+                        payload: {
+                            carInfo: values
+                        }
+                    })
+                }
             },
             handleCancel: () => {
                 dispatch({
@@ -178,7 +187,7 @@ class Car extends Component<carProps, carState> {
         return (
             <div className={styles.container}>
                 <Row gutter={[8, 32]} type="flex" justify="end">
-                    <Col span={4} style={{textAlign: 'right'}}>
+                    <Col span={4} style={{ textAlign: 'right' }}>
                         <Button type="primary" size="large" onClick={this.handleClick}>新增车辆</Button>
                     </Col>
                 </Row>
@@ -193,6 +202,6 @@ class Car extends Component<carProps, carState> {
     }
 }
 
-export default connect(({ carMod }: { carMod: CarModelState}) => ({
+export default connect(({ carMod }: { carMod: CarModelState }) => ({
     Car: carMod,
 }))(Car);

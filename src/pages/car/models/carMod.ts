@@ -6,6 +6,7 @@ import { CarInfoType } from '../car'
 
 import { 
   addCar,
+  updateCar,
   queryCar,
   delCar
 } from '../carServ';
@@ -39,6 +40,7 @@ export interface CarModelType {
   state: CarModelState;
   effects: {
     addCar: Effect,
+    editCar: Effect,
     fetchCar: Effect;
     delById: Effect;
   };
@@ -66,7 +68,7 @@ const CarModel: CarModelType = {
   effects: {
     *addCar(_, { call, put  }) {
       const params = {
-        ..._.payload.addInfo, 
+        ..._.payload.carInfo, 
         source: 'backend'
       }
       console.log('ee', params)
@@ -77,6 +79,28 @@ const CarModel: CarModelType = {
           type: 'updateStore',
           payload: {
             formType: ''
+          }
+        })
+        yield put({ type: 'fetchCar' })
+      } else {
+        message.error(response.msg || '未知错误')
+      }
+    },
+    *editCar(_, { call, put, select }) {
+      const { currentCar } = yield select((state: { carMod: CarModelState}) => state[CarModel.namespace])
+      const params = {
+        id: currentCar.id,
+        ..._.payload.carInfo
+      }
+      console.log('ee', params)
+      const response = yield call(updateCar, params)
+      if (response.code === '200') {
+        message.success(`修改成功`)
+        yield put({
+          type: 'updateStore',
+          payload: {
+            formType: '',
+            currentCar: {}
           }
         })
         yield put({ type: 'fetchCar' })

@@ -34,11 +34,11 @@ const plugins: IPlugin[] = [
       },
       pwa: pwa
         ? {
-            workboxPluginMode: 'InjectManifest',
-            workboxOptions: {
-              importWorkboxFrom: 'local',
-            },
-          }
+          workboxPluginMode: 'InjectManifest',
+          workboxOptions: {
+            importWorkboxFrom: 'local',
+          },
+        }
         : false, // default close dll, because issue https://github.com/ant-design/ant-design-pro/issues/4665
       // dll features https://webpack.js.org/plugins/dll-plugin/
       // dll: {
@@ -78,7 +78,7 @@ export default {
   proxy: {
     '/api/': {
       target: 'http://localhost:7001/',
-      changeOrigin: true, 
+      changeOrigin: true,
     }
   },
   // umi routes: https://umijs.org/zh/guide/router.html
@@ -118,6 +118,12 @@ export default {
               name: '车辆',
               icon: 'car',
               component: './car',
+            },
+            {
+              path: '/people',
+              name: '用户',
+              icon: 'user',
+              component: './people',
             },
             {
               path: '/admin',
