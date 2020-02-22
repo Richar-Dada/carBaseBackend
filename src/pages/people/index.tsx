@@ -8,7 +8,7 @@ import { PeopleModel } from './models/peopleMod'
 import { PeopleState, PeopleAttribute } from './people'
 import styles from './style.less'
 import CuForm from './components/CuForm'
-import { enumDeclaration } from '../../../node_modules/@babel/types';
+import DetailFrom from './components/DetailForm'
 
 interface PeopleProps {
     dispatch: Dispatch<AnyAction>
@@ -62,6 +62,8 @@ const People: React.SFC<PeopleProps> = ({
             key: 'x',
             render: (text, record) => (
                 <span>
+                    <a onClick={() => detail(record)}>详情</a>
+                    <Divider type="vertical" />
                     <a onClick={() => edit(record)}>编辑</a>
                     <Divider type="vertical" />
                     <Popconfirm
@@ -93,6 +95,22 @@ const People: React.SFC<PeopleProps> = ({
                     }
                 })
                 setFormType('edit')
+            }
+        })
+    }
+
+    const detail = (record: PeopleAttribute) => {
+        dispatch({
+            type: `${namespace}/fetchById`,
+            payload: { id: record.id },
+            callback: (res: PeopleAttribute) => {
+                dispatch({
+                    type: `${namespace}/updateStore`,
+                    payload: {
+                        current: res
+                    }
+                })
+                setFormType('detail')
             }
         })
     }
@@ -152,6 +170,19 @@ const People: React.SFC<PeopleProps> = ({
         }
     }
 
+    const detailProps = {
+        current,
+        handleCancel: () => {
+            setFormType('')
+            dispatch({
+                type: `${namespace}/updateStore`,
+                payload: {
+                    current: {}
+                }
+            })
+        }
+    }
+
     useEffect(() => {
         dispatch({ type: `${namespace}/fetch` })
     }, [])
@@ -160,7 +191,7 @@ const People: React.SFC<PeopleProps> = ({
         <div className={styles.container}>
             <Row gutter={[8, 32]} type="flex" justify="end">
                 <Col span={4} style={{ textAlign: 'right' }}>
-                    <Button type="primary" size="large" onClick={handleClick}>新增车辆</Button>
+                    <Button type="primary" size="large" onClick={handleClick}>新增用户</Button>
                 </Col>
             </Row>
             <Row gutter={[8, 32]}>
@@ -168,7 +199,8 @@ const People: React.SFC<PeopleProps> = ({
                     <Table {...tableProps} />
                 </Col>
             </Row>
-            {formType !== '' && <CuForm {...cuFormProps}></CuForm>}
+            {formType !== '' && formType !== 'detail' && <CuForm {...cuFormProps}></CuForm>}
+            {formType === 'detail' && <DetailFrom {...detailProps}></DetailFrom>}
         </div>
     )
 }

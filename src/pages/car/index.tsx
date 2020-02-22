@@ -7,6 +7,7 @@ import { ColumnProps } from 'antd/es/table'
 import { CarModelState } from './models/carMod'
 import styles from './style.less'
 import CarForm from './components/Form'
+import DetailForm from './components/DetailForm'
 import { FormType, CarInfoType } from './car'
 
 const namespace: string = 'carMod'
@@ -77,6 +78,8 @@ class Car extends Component<carProps, carState> {
             key: 'x',
             render: (text, record) => (
                 <span>
+                    <a onClick={() => this.detail(record)}>详情</a>
+                    <Divider type="vertical" />
                     <a onClick={() => this.edit(record)}>编辑</a>
                     <Divider type="vertical" />
                     <Popconfirm
@@ -106,6 +109,23 @@ class Car extends Component<carProps, carState> {
             payload: {
                 currentCar: record,
                 formType: 'edit'
+            }
+        })
+    }
+
+    detail = (record: CarInfoType) => {
+        const { dispatch } = this.props
+        dispatch({
+            type: `${namespace}/fetchById`,
+            payload: { id: record.id },
+            callback: (res: CarInfoType) => {
+                dispatch({
+                    type: `${namespace}/updateStore`,
+                    payload: {
+                        currentCar: res,
+                        formType: 'detail'
+                    }
+                })
             }
         })
     }
@@ -163,6 +183,19 @@ class Car extends Component<carProps, carState> {
             }
         }
 
+        const detailFormProps = {
+            current: currentCar,
+            handleCancel: () => {
+                dispatch({
+                    type: `${namespace}/updateStore`,
+                    payload: {
+                        formType: '',
+                        currentCar: {}
+                    }
+                })
+            }
+        }
+
         const tableProps = {
             rowKey: 'id',
             columns: this.columns,
@@ -196,7 +229,8 @@ class Car extends Component<carProps, carState> {
                         <Table {...tableProps} />
                     </Col>
                 </Row>
-                {formType !== '' && <CarForm {...carFormProps}></CarForm>}
+                {formType !== '' && formType !== 'detail' && <CarForm {...carFormProps}></CarForm>}
+                {formType === 'detail' && <DetailForm {...detailFormProps} />}
             </div>
         )
     }

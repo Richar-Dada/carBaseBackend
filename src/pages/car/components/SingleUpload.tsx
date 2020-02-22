@@ -3,16 +3,17 @@ import { Upload, Icon, message, Modal } from 'antd';
 import { UploadFile } from 'antd/es/upload/interface'
 
 interface IProp {
-    actionUrl: string,
-    onChange?: (info: any) => void
+  actionUrl: string,
+  onChange?: (info: any) => void
+  showUploadList?: any
 }
 
 interface IState {
-    loading: boolean,
-    imageUrl: string,
-    previewImage: string
-    previewVisible: boolean,
-    fileList: UploadFile[],
+  loading: boolean,
+  imageUrl: string,
+  previewImage: string
+  previewVisible: boolean,
+  fileList: UploadFile[],
 }
 
 interface InfoProp {
@@ -88,12 +89,15 @@ class SingleUpload extends Component<IProp, IState> {
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-    const { 
-      fileList, 
+    const {
+      fileList,
       previewVisible,
       previewImage
     } = this.state;
-    const { actionUrl } = this.props
+    const {
+      actionUrl,
+      showUploadList
+    } = this.props
     return (
       <div className="clearfix">
         <Upload
@@ -104,6 +108,7 @@ class SingleUpload extends Component<IProp, IState> {
           beforeUpload={beforeUpload}
           onChange={this.handleChange}
           onPreview={this.handlePreview}
+          showUploadList={showUploadList}
         >
           {fileList.length >= 1 ? null : uploadButton}
         </Upload>

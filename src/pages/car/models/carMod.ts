@@ -4,10 +4,11 @@ import { message } from 'antd'
 
 import { CarInfoType } from '../car'
 
-import { 
+import {
   addCar,
   updateCar,
   queryCar,
+  queryCarById,
   delCar
 } from '../carServ';
 
@@ -42,6 +43,7 @@ export interface CarModelType {
     addCar: Effect,
     editCar: Effect,
     fetchCar: Effect;
+    fetchById: Effect;
     delById: Effect;
   };
   reducers: {
@@ -66,9 +68,9 @@ const CarModel: CarModelType = {
   },
 
   effects: {
-    *addCar(_, { call, put  }) {
+    *addCar(_, { call, put }) {
       const params = {
-        ..._.payload.carInfo, 
+        ..._.payload.carInfo,
         source: 'backend'
       }
       console.log('ee', params)
@@ -87,7 +89,7 @@ const CarModel: CarModelType = {
       }
     },
     *editCar(_, { call, put, select }) {
-      const { currentCar } = yield select((state: { carMod: CarModelState}) => state[CarModel.namespace])
+      const { currentCar } = yield select((state: { carMod: CarModelState }) => state[CarModel.namespace])
       const params = {
         id: currentCar.id,
         ..._.payload.carInfo
@@ -110,7 +112,7 @@ const CarModel: CarModelType = {
     },
     *fetchCar(_, { select, call, put }) {
       console.log('fetchCar')
-      const { tableOption } = yield select((state: { carMod: CarModelState}) => state[CarModel.namespace])
+      const { tableOption } = yield select((state: { carMod: CarModelState }) => state[CarModel.namespace])
       let params: PaginationOptionType = {
         currentPage: tableOption.current,
         pageSize: tableOption.pageSize
@@ -127,13 +129,26 @@ const CarModel: CarModelType = {
         type: 'updateStore',
         payload: {
           cars: response.data.list,
-          tableOption: { 
+          tableOption: {
             current: response.data.currentPage,
             pageSize: response.data.pageSize,
             total: response.data.count
           }
         }
       });
+    },
+    *fetchById(_, { call, put }) {
+      const id = _.payload.id
+      if (!id) {
+        message.error('id不能为空')
+        return
+      }
+      const response = yield call(queryCarById, id)
+      if (response.code === '200') {
+        _.callback && _.callback(response.data)
+      } else {
+        message.error(response.msg || '未知错误')
+      }
     },
     *delById(_, { call, put }) {
       const id = _.payload.id
