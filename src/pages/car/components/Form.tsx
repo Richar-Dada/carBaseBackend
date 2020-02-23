@@ -3,10 +3,10 @@ import { Form, Modal, Input, InputNumber, DatePicker, Cascader, Select, Row, Col
 import { FormComponentProps } from 'antd/es/form'
 import moment from 'moment'
 
-import SingleUpload from './SingleUpload'
-import MultiUpload from './MultiUpload'
-import { addressAdapter } from '../data'
-import { FormType, CarInfoType } from '../car'
+import SingleUpload from '@/components/Upload/SingleUpload'
+import MultiUpload from '@/components/Upload/MultiUpload'
+import { addressAdapter } from '@/pages/car/data'
+import { FormType, CarInfoType } from '@/pages/car/car'
 
 const addr = addressAdapter()
 const { Option } = Select

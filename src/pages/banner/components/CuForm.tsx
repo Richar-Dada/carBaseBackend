@@ -3,6 +3,7 @@ import { Form, Modal, Input, Select, Row, Col, Radio } from 'antd'
 import { FormComponentProps } from 'antd/es/form'
 
 import { BannerAttribute } from '@/pages/banner/banner'
+import SingleUpload from '@/components/Upload/SingleUpload'
 
 const { Option } = Select
 
@@ -11,6 +12,13 @@ interface FormProps extends FormComponentProps {
     current: BannerAttribute,
     handleCancel: () => void,
     handleSubmit: (values: BannerAttribute) => void
+}
+
+interface FileListType {
+    uid: string,
+    name: string,
+    status: string,
+    url: string,
 }
 
 const formItemLayout = {
@@ -33,6 +41,17 @@ const CuForm: SFC<FormProps> = React.memo(({
 }) => {
     const { getFieldDecorator } = form
 
+    let thumbnailFileList: FileListType[] = []
+
+    if (formType === 'edit') {
+        thumbnailFileList = [{
+            uid: '-1',
+            name: 'thumbnail',
+            status: 'done',
+            url: current.imageUrl as string,
+        }]
+    }
+
     const onOk = () => {
         form.validateFields((err, values) => {
             if (err) {
@@ -40,6 +59,7 @@ const CuForm: SFC<FormProps> = React.memo(({
                 return
             }
 
+            values.imageUrl = values.imageUrl[0].response || values.imageUrl[0].url
             handleSubmit(values)
         })
     }
@@ -84,13 +104,14 @@ const CuForm: SFC<FormProps> = React.memo(({
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item label="Banner图路径">
+                        <Form.Item label="Banner图">
                             {getFieldDecorator('imageUrl', {
-                                initialValue: current.imageUrl,
-                                rules: [{ required: true, message: '请输入Banner图路径' }],
+                                valuePropName: 'fileList',
+                                initialValue: thumbnailFileList,
+                                rules: [{ required: true, message: '请上传缩略图' }],
                             })(
-                                <Input
-                                    placeholder="请输入Banner图路径"
+                                <SingleUpload
+                                    actionUrl="http://localhost:7001/api/v1/upload"
                                 />
                             )}
                         </Form.Item>
