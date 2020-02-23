@@ -126,6 +126,12 @@ export default {
               component: './people',
             },
             {
+              path: '/banner',
+              name: 'Banner设置',
+              icon: 'desktop',
+              component: './banner',
+            },
+            {
               path: '/admin',
               name: 'admin',
               icon: 'crown',
