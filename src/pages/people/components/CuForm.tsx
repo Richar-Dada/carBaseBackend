@@ -106,7 +106,7 @@ const CuForm: SFC<FormProps> = React.memo(({
                                     style={{ width: '100%' }}
                                     placeholder="请选择角色"
                                 >
-                                    <Option value="normal">会员</Option>
+                                    <Option value="user">会员</Option>
                                     <Option value="admin">管理员</Option>
                                 </Select>
                             )}
