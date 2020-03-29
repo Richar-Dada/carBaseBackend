@@ -77,6 +77,7 @@ const Model: LoginModelType = {
           }),
         });
       }
+      sessionStorage.removeItem('userId')
     },
   },
 

@@ -71,7 +71,8 @@ const CarModel: CarModelType = {
     *addCar(_, { call, put }) {
       const params = {
         ..._.payload.carInfo,
-        source: 'backend'
+        source: 'backend',
+        createBy: sessionStorage.getItem('userId')
       }
       console.log('ee', params)
       const response = yield call(addCar, params)
